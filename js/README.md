@@ -4,6 +4,12 @@ dquickts compiled to WebAssembly, with JavaScript bindings. A VM is one instance
 `quickjs.wasm` (a WASI reactor module, about 850 KB) holding one runtime and one context. It runs
 anywhere WebAssembly does: Node, Bun, Deno, browsers, Cloudflare Workers.
 
+> **Fork note.** This directory comes from `earendil-works/dquickts` and is merged into the
+> `main-wasm` branch on top of upstream `stencil-hq/dquickts`. The build and tests run anywhere.
+> The preview/npm publishing jobs in `.github/workflows/package.yml` are guarded to the
+> `earendil-works/dquickts` repository, so a push to this fork does not attempt to publish under
+> the `@earendil-works` npm scope.
+
 ```sh
 cd js
 make setup     # downloads wasi-sdk 32 to ~/.cache/wasi-sdk (once)

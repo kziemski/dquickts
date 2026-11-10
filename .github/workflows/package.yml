@@ -82,7 +82,7 @@ jobs:
 
   pkg:
     needs: build
-    if: github.ref == 'refs/heads/master'
+    if: github.repository == 'earendil-works/dquickts' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     permissions:
       id-token: write # authenticate to pkg.earendil.com
@@ -122,7 +122,7 @@ jobs:
 
   npm:
     needs: build
-    if: startsWith(github.ref, 'refs/tags/js-v')
+    if: github.repository == 'earendil-works/dquickts' && startsWith(github.ref, 'refs/tags/js-v')
     runs-on: ubuntu-latest
     environment: npm
     permissions:
