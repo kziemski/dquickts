@@ -1823,10 +1823,10 @@ int run_test(ThreadLocalStorage *tls, const char *filename, int index)
 
     if (new_style) {
         if (!harness) {
-            const char *test = strstr(filename, "test/");
-            if (test) {
+            const char *test_dir = strstr(filename, "test/");
+            if (test_dir) {
                 snprintf(harnessbuf, sizeof(harnessbuf), "%.*s%s",
-                         (int)(test - filename), filename, "harness");
+                         (int)(test_dir - filename), filename, "harness");
             } else {
                 pstrcpy(harnessbuf, sizeof(harnessbuf), "");
             }
@@ -1915,10 +1915,10 @@ int run_test(ThreadLocalStorage *tls, const char *filename, int index)
         char *ifile;
 
         if (!harness) {
-            const char *test = strstr(filename, "test/");
-            if (test) {
+            const char *test_dir = strstr(filename, "test/");
+            if (test_dir) {
                 snprintf(harnessbuf, sizeof(harnessbuf), "%.*s%s",
-                         (int)(test - filename), filename, "test/harness");
+                         (int)(test_dir - filename), filename, "test/harness");
             } else {
                 pstrcpy(harnessbuf, sizeof(harnessbuf), "");
             }
@@ -2295,6 +2295,16 @@ int main(int argc, char **argv)
 
 #if !defined(_WIN32)
     /* Date tests assume California local time */
+#if defined(__COSMOPOLITAN__)
+    /* Cosmopolitan otherwise loads the zone from the zip store of the
+       executable, and its zip file descriptors are not reserved with the
+       kernel: a concurrent open() in another test thread can get the same
+       descriptor number, which makes fopen() crash or read garbage.
+       Use the host zone file when available. */
+    if (access("/usr/share/zoneinfo/America/Los_Angeles", R_OK) == 0)
+        setenv("TZ", "/usr/share/zoneinfo/America/Los_Angeles", 1);
+    else
+#endif
     setenv("TZ", "America/Los_Angeles", 1);
 #endif
 

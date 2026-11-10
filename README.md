@@ -51,6 +51,7 @@ make test-snapshot   # builds and runs the suspension and snapshot test hosts
   - [Testing Python](#testing-python)
 - [Rust bindings](#rust-bindings)
 - [qbun: Bun and Node.js programs](#qbun-bun-and-nodejs-programs)
+- [JavaScript bindings](#javascript-bindings)
 - [Testing](#testing)
 - [Documentation](#documentation)
 - [Credits and license](#credits-and-license)
@@ -78,6 +79,7 @@ fork adds:
 | A REPL that switches between JS/TypeScript and Python from one input to the next, in one runtime | `\py`, `\js` in `qjs` and `qjs --drepl FILE --python` |
 | Python 3.15 compiled to QuickJS bytecode, sharing the runtime with JS; CPython-compatible C API (abi3 wheels, source builds of numpy, Pillow and matplotlib) | `qpy`, `JS_InitPython()`, `JS_EvalPython()`, `qjs --drepl FILE --python` |
 | Rust bindings built on this engine | [`rquickjs/`](rquickjs/README.md) |
+| A WebAssembly build with JavaScript bindings | [`js/`](js/README.md) |
 
 The full list is under `unreleased` in [`Changelog`](Changelog).
 
@@ -1051,6 +1053,23 @@ The native bindings are in `node/*.c` (C modules `qbun:<name>` on libuv, libcurl
 sqlite3, zlib/brotli/zstd, libffi and the image codecs) and the library in `node/lib`
 (TypeScript, read at run time from `$QBUN_LIB` or the build's `node/lib`).
 
+## JavaScript bindings
+
+[`js/`](js/README.md) builds the engine with wasi-sdk into `quickjs.wasm`, a WASI reactor module
+that runs in Node, Bun, browsers and Cloudflare Workers, and wraps it in a TypeScript API that
+follows [quickjs-wasi](https://github.com/vercel-labs/quickjs-wasi): one VM per wasm instance,
+value handles, host functions, a memory limit, an interrupt handler, and TypeScript through
+`EvalFlags.TYPESCRIPT`.
+
+```ts
+const vm = await QuickJS.create({ wasm, memoryLimit: 64 << 20 });
+const result = vm.evalCode("const n: number = 2; n * 21", "main.ts", EvalFlags.TYPESCRIPT);
+result.toNumber(); // 42
+```
+
+The [README](js/README.md) lists how the bindings differ from quickjs-wasi. They do not expose
+snapshots yet.
+
 ## Testing
 
 ```sh
@@ -1060,6 +1079,7 @@ make -C tests/snapshot ASAN=1 check   # the same, under AddressSanitizer and UBS
 make -C tests/snapshot stress     # suspend every 97 branches across the upstream test suite
 make test2-bootstrap && make test2    # test262
 (cd rquickjs && cargo test)       # Rust bindings
+make -C js setup && make -C js test   # WebAssembly build and JavaScript bindings
 ```
 
 `tests/snapshot` contains these hosts:
@@ -1082,6 +1102,7 @@ make test2-bootstrap && make test2    # test262
 - [`Changelog`](Changelog): everything added since upstream `2026-06-04`.
 - [`rquickjs/README.md`](rquickjs/README.md): the Rust bindings.
 - [`doc/python-plan.md`](doc/python-plan.md): the Python design and milestones.
+- [`js/README.md`](js/README.md): the WebAssembly build and JavaScript bindings.
 
 ## Credits and license
 

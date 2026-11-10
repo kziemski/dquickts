@@ -105,6 +105,9 @@ unreleased:
   JS_GetFunctionProto() and JS_PromiseMarkAsHandled()
 - added rquickjs/: the rquickjs Rust bindings built on this engine, with
   suspension, snapshots and the optional snapshot()/restore() builtins
+- added js/: a WebAssembly build (wasi-sdk, WASI reactor) with
+  JavaScript bindings modeled on quickjs-wasi; the engine builds for
+  wasm32-wasip1 (no Atomics there, dtoa.c no longer includes setjmp.h)
 - added TypeScript (JS_EVAL_FLAG_TYPESCRIPT; .ts/.mts/.cts files in qjs,
   qjsc and the module loader, qjs --typescript): types are erased while
   parsing; enums, namespaces and parameter properties are compiled to
@@ -210,6 +213,13 @@ unreleased:
   'typescript' option; qjs: '-' as file name reads stdin
 - fixed the export of the names bound by array destructuring exports
   ('export const [a, b] = ...', quickjs-ng #1576)
+- an interruption stops the execution until it returns to the host:
+  every later function call and loop iteration throws it again, and
+  the call or job entered from the host returns it, also if an async
+  function, a promise executor or JS_IteratorClose() absorbed it. Before,
+  the code after an interrupted async function kept running and could
+  avoid the interruption (e.g. a loop of interrupted async calls).
+  JS_SetUncatchableException(ctx, FALSE) ends the interruption
 - added explicit resource management (ES2026): 'using' and 'await using'
   declarations, DisposableStack, AsyncDisposableStack, SuppressedError,
   Symbol.dispose, Symbol.asyncDispose, Iterator.prototype[Symbol.dispose]

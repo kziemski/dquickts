@@ -890,7 +890,7 @@ char *js_module_normalize(JSContext *ctx, const char *base_name,
         { ".cjs", ".cts" },
     };
     char *filename, *p, *ts_filename;
-    const char *r, *last;
+    const char *r, *last, *sep;
     size_t len, cap, ext_len;
     int i;
 
@@ -899,9 +899,9 @@ char *js_module_normalize(JSContext *ctx, const char *base_name,
         return js_strdup(ctx, name);
     }
 
-    r = strrchr(base_name, '/');
-    if (r && name[0] == '.')
-        len = r - base_name;
+    sep = strrchr(base_name, '/');
+    if (sep && name[0] == '.')
+        len = sep - base_name;
     else
         len = 0;
 
